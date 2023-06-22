@@ -6,11 +6,21 @@ namespace tf2_bradcaster_component
     {
         timer_ = this->create_wall_timer(500ms, std::bind(&TF2BroadCasterComponent::publish_tf, this));
         odometry_subscription_ = this->create_subscription<nav_msgs::msg::Odometry>("/odom", 10, std::bind(&TF2BroadCasterComponent::odometry_callback, this, std::placeholders::_1));
+        initial_pose_subscription_ = this->create_subscription<geometry_msgs::msg::PoseWithCovarianceStamped>("/initialpose", 10 ,std::bind(&TF2BroadCasterComponent::initialpose_callback, this, std::placeholders::_1));
     }
 
     void TF2BroadCasterComponent::odometry_callback(const nav_msgs::msg::Odometry::SharedPtr data)
     {
         robot_odometry_ = *data;
+    }
+
+
+    void TF2BroadCasterComponent::initialpose_callback(const geometry_msgs::msg::PoseWithCovarianceStamped::SharedPtr data)
+    {
+        initialpose_ = *data;
+        RCLCPP_INFO(this->get_logger(), "initial pose x : %f", initialpose_.pose.pose.position.x);
+        RCLCPP_INFO(this->get_logger(), "initial pose y : %f", initialpose_.pose.pose.position.y);
+        RCLCPP_INFO(this->get_logger(), "initial pose z : %f", initialpose_.pose.pose.position.z);
     }
 
     void TF2BroadCasterComponent::OdometryToTransformed(void)
