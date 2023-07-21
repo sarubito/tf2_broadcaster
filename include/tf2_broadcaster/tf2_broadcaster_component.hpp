@@ -50,6 +50,7 @@ extern "C" {
 #include "rclcpp/rclcpp.hpp"
 #include "tf2_geometry_msgs/tf2_geometry_msgs.hpp"
 #include "tf2_ros/transform_broadcaster.h"
+#include "tf2_ros/static_transform_broadcaster.h"
 #include "tf2_ros/buffer.h"
 #include "tf2/LinearMath/Transform.h"
 #include "geometry_msgs/msg/transform_stamped.hpp"
@@ -73,6 +74,7 @@ namespace tf2_bradcaster_component
     private:
       void publish_tf(void);
       void OdometryToTransformed(void);
+      void odom2base_footprint(void);
       void odometry_callback(const nav_msgs::msg::Odometry::SharedPtr data);
       void initialpose_callback(const geometry_msgs::msg::PoseWithCovarianceStamped::SharedPtr data);
 
@@ -82,10 +84,12 @@ namespace tf2_bradcaster_component
 
       nav_msgs::msg::Odometry robot_odometry_;
       geometry_msgs::msg::TransformStamped odom_transformed_;
-      geometry_msgs::msg::TransformStamped base_link_transformed_;
+      geometry_msgs::msg::TransformStamped base_footprint_transformed_;
+      geometry_msgs::msg::TransformStamped t;
       geometry_msgs::msg::PoseWithCovarianceStamped initialpose_;
 
       std::shared_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
+      std::shared_ptr<tf2_ros::StaticTransformBroadcaster> tf_static_broadcaster_;
 
       bool initialize = false;
 

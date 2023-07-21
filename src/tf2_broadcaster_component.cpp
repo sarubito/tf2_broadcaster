@@ -40,9 +40,22 @@ namespace tf2_bradcaster_component
         odom_transformed_.transform.rotation.w = 1.0;
     }
 
+    void TF2BroadCasterComponent::odom2base_footprint(void)
+    {
+        base_footprint_transformed_.transform.translation.x = robot_odometry_.pose.pose.position.x;
+        base_footprint_transformed_.transform.translation.y = robot_odometry_.pose.pose.position.y;
+        base_footprint_transformed_.transform.translation.z = robot_odometry_.pose.pose.position.z;
+        base_footprint_transformed_.transform.rotation.x = robot_odometry_.pose.pose.orientation.x;
+        base_footprint_transformed_.transform.rotation.y = robot_odometry_.pose.pose.orientation.y;
+        base_footprint_transformed_.transform.rotation.z = robot_odometry_.pose.pose.orientation.z;
+        base_footprint_transformed_.transform.rotation.w = robot_odometry_.pose.pose.orientation.w;
+    }
+
     void TF2BroadCasterComponent::publish_tf(void)
     {
         tf_broadcaster_ =  std::make_shared<tf2_ros::TransformBroadcaster>(this);
+        tf_static_broadcaster_ = std::make_shared<tf2_ros::StaticTransformBroadcaster>(this);
+        
         // tf2::convert(robot_odometry_.pose.pose, txi);
         // geometry_msgs::msg::TransformStamped txi_inv;
         // txi_inv.header.frame_id = "base_footprint";
@@ -54,6 +67,25 @@ namespace tf2_bradcaster_component
         odom_transformed_.header.frame_id = "map";
         odom_transformed_.child_frame_id = "odom";
         tf_broadcaster_->sendTransform(odom_transformed_);
+
+        odom2base_footprint();
+        base_footprint_transformed_.header.stamp = robot_odometry_.header.stamp;
+        base_footprint_transformed_.header.frame_id = "odom";
+        base_footprint_transformed_.child_frame_id = "base_footprint";
+        tf_broadcaster_->sendTransform(base_footprint_transformed_);
+
+        t.header.stamp = robot_odometry_.header.stamp;
+        t.header.frame_id = "base_footprint";
+        t.child_frame_id = "base_link";
+
+        t.transform.translation.x = 0.0;
+        t.transform.translation.y = 0.0;
+        t.transform.translation.z = 0.3;
+        t.transform.rotation.x = 0.0;
+        t.transform.rotation.y = 0.0;
+        t.transform.rotation.z = 0.0;
+        t.transform.rotation.w = 1.0;
+        tf_static_broadcaster_->sendTransform(t);
     }
 
     TF2BroadCasterComponent::~TF2BroadCasterComponent(void){}
